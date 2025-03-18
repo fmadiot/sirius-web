@@ -27,7 +27,9 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.sirius.components.collaborative.api.ChangeKind;
 import org.eclipse.sirius.components.core.api.IFeedbackMessageService;
+import org.eclipse.sirius.components.core.api.ILabelService;
 import org.eclipse.sirius.components.core.api.IObjectService;
+import org.eclipse.sirius.components.emf.forms.api.IEMFFormIfDescriptionProvider;
 import org.eclipse.sirius.components.emf.forms.api.IPropertiesValidationProvider;
 import org.eclipse.sirius.components.emf.services.api.IEMFKindService;
 import org.eclipse.sirius.components.forms.WidgetIdProvider;
@@ -40,21 +42,25 @@ import org.eclipse.sirius.components.representations.Success;
 import org.eclipse.sirius.components.representations.VariableManager;
 import org.eclipse.sirius.components.widget.reference.ReferenceWidgetComponent;
 import org.eclipse.sirius.components.widget.reference.ReferenceWidgetDescription;
+import org.springframework.stereotype.Service;
 
 /**
  * Provides the default description of the widget to use to support non-containment reference.
  *
  * @author frouene
  */
-public class NonContainmentReferenceIfDescriptionProvider {
+@Service
+public class NonContainmentReferenceIfDescriptionProvider implements IEMFFormIfDescriptionProvider {
+
+    public static final String IF_DESCRIPTION_ID = "NonContainment Reference";
 
     private static final String REFERENCE_WIDGET_DESCRIPTION_ID = "NonContainmentReferenceIfDescriptionProvider.ReferenceWidget";
-
-    private static final String ID_DESCRIPTION_ID = "NonContainment Reference";
 
     private final ComposedAdapterFactory composedAdapterFactory;
 
     private final IObjectService objectService;
+
+    private final ILabelService labelService;
 
     private final IPropertiesValidationProvider propertiesValidationProvider;
 
@@ -64,23 +70,24 @@ public class NonContainmentReferenceIfDescriptionProvider {
 
     private final IFeedbackMessageService feedbackMessageService;
 
-
-    public NonContainmentReferenceIfDescriptionProvider(ComposedAdapterFactory composedAdapterFactory, IObjectService objectService, IEMFKindService emfKindService,
-            IFeedbackMessageService feedbackMessageService, IPropertiesValidationProvider propertiesValidationProvider, Function<VariableManager, String> semanticTargetIdProvider) {
+    public NonContainmentReferenceIfDescriptionProvider(ComposedAdapterFactory composedAdapterFactory, IObjectService objectService, ILabelService labelService, IEMFKindService emfKindService,
+                                                        IFeedbackMessageService feedbackMessageService, IPropertiesValidationProvider propertiesValidationProvider, Function<VariableManager, String> semanticTargetIdProvider) {
         this.composedAdapterFactory = Objects.requireNonNull(composedAdapterFactory);
         this.objectService = Objects.requireNonNull(objectService);
+        this.labelService = Objects.requireNonNull(labelService);
         this.propertiesValidationProvider = Objects.requireNonNull(propertiesValidationProvider);
         this.semanticTargetIdProvider = Objects.requireNonNull(semanticTargetIdProvider);
         this.emfKindService = Objects.requireNonNull(emfKindService);
         this.feedbackMessageService = Objects.requireNonNull(feedbackMessageService);
     }
 
-    public IfDescription getIfDescription() {
-        return IfDescription.newIfDescription(ID_DESCRIPTION_ID)
+    @Override
+    public List<IfDescription> getIfDescriptions() {
+        return List.of(IfDescription.newIfDescription(IF_DESCRIPTION_ID)
                 .targetObjectIdProvider(this.semanticTargetIdProvider)
                 .predicate(this.getPredicate())
                 .controlDescriptions(List.of(this.getReferenceWidgetDescription()))
-                .build();
+                .build());
     }
 
     private Function<VariableManager, Boolean> getPredicate() {
@@ -162,11 +169,11 @@ public class NonContainmentReferenceIfDescriptionProvider {
     }
 
     private String getItemLabel(VariableManager variableManager) {
-        return this.getItem(variableManager).map(this.objectService::getLabel).orElse("");
+        return this.getItem(variableManager).map(this.labelService::getStyledLabel).map(Object::toString).orElse("");
     }
 
     private List<String> getItemIconURL(VariableManager variableManager) {
-        return this.getItem(variableManager).map(this.objectService::getImagePath).orElse(List.of());
+        return this.getItem(variableManager).map(this.labelService::getImagePaths).orElse(List.of());
     }
 
     private String getItemKind(VariableManager variableManager) {

@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
+import org.eclipse.sirius.components.emf.forms.api.IEMFFormIfDescriptionProvider;
 import org.eclipse.sirius.components.emf.forms.api.IPropertiesValidationProvider;
 import org.eclipse.sirius.components.forms.WidgetIdProvider;
 import org.eclipse.sirius.components.forms.description.IfDescription;
@@ -31,15 +32,17 @@ import org.eclipse.sirius.components.representations.Failure;
 import org.eclipse.sirius.components.representations.IStatus;
 import org.eclipse.sirius.components.representations.Success;
 import org.eclipse.sirius.components.representations.VariableManager;
+import org.springframework.stereotype.Service;
 
 /**
  * Provides the default description of the widget to use to support an EString feature.
  *
  * @author sbegaudeau
  */
-public class EStringIfDescriptionProvider {
+@Service
+public class EStringIfDescriptionProvider implements IEMFFormIfDescriptionProvider {
 
-    private static final String IF_DESCRIPTION_ID = "EString";
+    public static final String IF_DESCRIPTION_ID = "EString";
 
     private static final String TEXTAREA_DESCRIPTION_ID = "Textarea";
 
@@ -55,12 +58,13 @@ public class EStringIfDescriptionProvider {
         this.semanticTargetIdProvider = Objects.requireNonNull(semanticTargetIdProvider);
     }
 
-    public IfDescription getIfDescription() {
-        return IfDescription.newIfDescription(IF_DESCRIPTION_ID)
+    @Override
+    public List<IfDescription> getIfDescriptions() {
+        return List.of(IfDescription.newIfDescription(IF_DESCRIPTION_ID)
                 .targetObjectIdProvider(this.semanticTargetIdProvider)
                 .predicate(this.getPredicate())
                 .controlDescriptions(List.of(this.getTextareaDescription()))
-                .build();
+                .build());
     }
 
     private Function<VariableManager, Boolean> getPredicate() {

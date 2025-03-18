@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
+import org.eclipse.sirius.components.emf.forms.api.IEMFFormIfDescriptionProvider;
 import org.eclipse.sirius.components.emf.forms.api.IPropertiesValidationProvider;
 import org.eclipse.sirius.components.forms.DateTimeType;
 import org.eclipse.sirius.components.forms.WidgetIdProvider;
@@ -32,15 +33,17 @@ import org.eclipse.sirius.components.representations.Failure;
 import org.eclipse.sirius.components.representations.IStatus;
 import org.eclipse.sirius.components.representations.Success;
 import org.eclipse.sirius.components.representations.VariableManager;
+import org.springframework.stereotype.Service;
 
 /**
  * Provides the default description of the widget to use to support DataType feature of type java.time.Instant.
  *
  * @author lfasani
  */
-public class InstantIfDescriptionProvider {
+@Service
+public class InstantIfDescriptionProvider implements IEMFFormIfDescriptionProvider {
 
-    private static final String IF_DESCRIPTION_ID = "java.time.Instant";
+    public static final String IF_DESCRIPTION_ID = "java.time.Instant";
 
     private static final String DATE_TIME_DESCRIPTION_ID = "DateTime";
 
@@ -56,12 +59,13 @@ public class InstantIfDescriptionProvider {
         this.semanticTargetIdProvider = Objects.requireNonNull(semanticTargetIdProvider);
     }
 
-    public IfDescription getIfDescription() {
-        return IfDescription.newIfDescription(IF_DESCRIPTION_ID)
+    @Override
+    public List<IfDescription> getIfDescriptions() {
+        return List.of(IfDescription.newIfDescription(IF_DESCRIPTION_ID)
                 .targetObjectIdProvider(this.semanticTargetIdProvider)
                 .predicate(this.getPredicate())
                 .controlDescriptions(List.of(this.getDateTimeDescription()))
-                .build();
+                .build());
     }
 
     private Function<VariableManager, Boolean> getPredicate() {

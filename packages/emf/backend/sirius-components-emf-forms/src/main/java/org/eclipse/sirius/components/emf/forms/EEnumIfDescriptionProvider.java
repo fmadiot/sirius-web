@@ -28,6 +28,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
+import org.eclipse.sirius.components.emf.forms.api.IEMFFormIfDescriptionProvider;
 import org.eclipse.sirius.components.emf.forms.api.IPropertiesValidationProvider;
 import org.eclipse.sirius.components.forms.WidgetIdProvider;
 import org.eclipse.sirius.components.forms.components.SelectComponent;
@@ -39,15 +40,17 @@ import org.eclipse.sirius.components.representations.Success;
 import org.eclipse.sirius.components.representations.VariableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Provides the default description of the widget to use to support an EEnum feature.
  *
  * @author sbegaudeau
  */
-public class EEnumIfDescriptionProvider {
+@Service
+public class EEnumIfDescriptionProvider implements IEMFFormIfDescriptionProvider {
 
-    private static final String IF_DESCRIPTION_ID = "EEnum";
+    public static final String IF_DESCRIPTION_ID = "EEnum";
 
     private static final String RADIO_DESCRIPTION_ID = "Radio";
 
@@ -65,12 +68,13 @@ public class EEnumIfDescriptionProvider {
         this.semanticTargetIdProvider = Objects.requireNonNull(semanticTargetIdProvider);
     }
 
-    public IfDescription getIfDescription() {
-        return IfDescription.newIfDescription(IF_DESCRIPTION_ID)
+    @Override
+    public List<IfDescription> getIfDescriptions() {
+        return List.of(IfDescription.newIfDescription(IF_DESCRIPTION_ID)
                 .targetObjectIdProvider(this.semanticTargetIdProvider)
                 .predicate(this.getPredicate())
                 .controlDescriptions(List.of(this.getRadioDescription()))
-                .build();
+                .build());
     }
 
     private Function<VariableManager, Boolean> getPredicate() {
