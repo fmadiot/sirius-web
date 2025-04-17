@@ -59,8 +59,9 @@ This improves the time needed to open a project and other scenarios where we cre
 The improvement on project opening will be proportional to the size/complexity of the metamodels and the number of View-based representations available in the project.
 - https://github.com/eclipse-sirius/sirius-web/issues/4858[#4858] [view] Switch to a service based approach to convert forms
 - https://github.com/eclipse-sirius/sirius-web/issues/4835[#4835] [view] Order Node/Edge palette's tools/tools sections the same way.
-
-
+- https://github.com/eclipse-sirius/sirius-web/issues/4840[#4850] [sirius-web] Reduce the amount of data fetched from the DB on project opening.
+`StudioCapableEditingContextPredicate` (called several times on projet open) now avoids fetching the documents content, which it does not need.
+On large projects this can significantly reduce the amount of data fetched from the DB and not actually used.
 
 == v2025.4.0
 
