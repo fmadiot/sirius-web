@@ -35,7 +35,7 @@ public class SpringDataCommonsProjectFactory {
     public Project create() {
         var springDataCommons = PapayaFactory.eINSTANCE.createProject();
         springDataCommons.setName("Spring Data Commons");
-        springDataCommons.getComponents().add(this.springDataCommons());
+        springDataCommons.getElements().add(this.springDataCommons());
 
         return springDataCommons;
     }
