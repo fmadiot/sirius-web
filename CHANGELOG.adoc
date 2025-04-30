@@ -20,7 +20,18 @@
 Implementations of the interface `org.eclipse.sirius.components.view.emf.form.IWidgetConverterProvider` should now switch to `org.eclipse.sirius.components.view.emf.form.converters.widgets.api.IWidgetDescriptionConverter`.
 During this refactoring some concepts have been moved and their package have been updated such as `IFormIdProvider`.
 - https://github.com/eclipse-sirius/sirius-web/issues/4893[#4893] [compatibility] The support for odesign files from Sirius Desktop has been removed now that the support for the View DSL provides all the features that were supported in the odesign part.
-
+- Sirius Web now uses Sirius EMF JSON 2.5.0, which includes breaking changes (and much improved performance).
+Of particular note: projects which create View-based, in-memory, representation description programatically and rely on `EcoreUtil.getURI()` to derive a stable object id should either:
+* Make sure they invoke `EcoreUtil.getURI()` *before* their objects are moved inside a `JsonResourceImpl` (see https://github.com/eclipse-sirius/sirius-web/blob/master/packages/sirius-web/backend/sirius-web-papaya/src/main/java/org/eclipse/sirius/web/papaya/services/PapayaViewProvider.java[`PapayaViewProvider`] for an example).
+* Create the JSON resource they use for their View models with the new option `JsonResource.OPTION_FORCE_DEFAULT_REFERENCE_SERIALIZATION` set:
++
+[source,java]
+----
+Map<String, Object> customOptions = Map.of(JsonResource.OPTION_FORCE_DEFAULT_REFERENCE_SERIALIZATION, Boolean.TRUE);
+JsonResource resource = jsonResourceFactory.createResource(uri, customOptions);
+----
++
+See https://github.com/eclipse-sirius/sirius-emf-json/blob/master/CHANGELOG.adoc#v250[the Sirius EMF JSON changelog] for details.
 
 === Dependency update
 
@@ -40,7 +51,7 @@ The following dependencies have been updated:
 - [releng] Switch `@mui/material` to `7.0.2`
 - [releng] Switch `@mui/icons-material` to `7.0.2`
 - [releng] Switch `tss-react` to `4.9.16`
-
+- [releng] Switch to Sirius EMF JSON 2.5.0
 
 === Bug fixes
 
@@ -67,8 +78,9 @@ The improvement on project opening will be proportional to the size/complexity o
 - https://github.com/eclipse-sirius/sirius-web/issues/4835[#4835] [view] Order Node/Edge palette's tools/tools sections the same way.
 - https://github.com/eclipse-sirius/sirius-web/issues/4861[#4861] [diagram] Keep the specified target position of the handle when creating an edge
 - https://github.com/eclipse-sirius/sirius-web/issues/4877[#4877] [diagram] Change handle position after dragging first/last segment on node borders
-
-
+- [sirius-web] The switch to Sirius EMF JSON 2.5.0 should greatly improve the performance of loading and saving semantic data.
+This is mostly visible when cold-opening projects with large documents (load performance), and when saving semantic data after edition operations.
+Note that the improvements will only be visible for projects created or modified after the update; existing semantic data which has not been modified will continue to be "slow" to load/read until it is modified at least once and saved in the new, improved format.
 
 == v2025.4.0
 
